@@ -6,7 +6,6 @@ import { getEntriesBetween } from '../../data/entries.js';
 import { userMessage } from '../../data/errors.js';
 import { getRanges } from '../../lib/ranges.js';
 import { REPORT_DAYS, buildReportData, reportPeriod } from '../../lib/reportData.js';
-import { ReportCharts } from './ReportCharts.jsx';
 
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
@@ -37,7 +36,7 @@ async function captureCharts(container) {
 export function ReportButton({ patient, medications, today }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  const [printData, setPrintData] = useState(null);
+  const [printView, setPrintView] = useState(null);
   const chartsRef = useRef(null);
 
   async function download() {
@@ -45,9 +44,11 @@ export function ReportButton({ patient, medications, today }) {
     setBusy(true);
     try {
       const period = reportPeriod(today);
-      const [entries, { buildReport, reportFileName }] = await Promise.all([
+      // The PDF and chart code is loaded on demand to keep it out of the main bundle.
+      const [entries, { buildReport, reportFileName }, { ReportCharts }] = await Promise.all([
         getEntriesBetween(patient.id, period.fetchStartKey, period.endKey),
         import('./buildReport.js'),
+        import('./ReportCharts.jsx'),
       ]);
       const data = buildReportData({
         patient,
@@ -57,7 +58,7 @@ export function ReportButton({ patient, medications, today }) {
         now: new Date(),
         ranges: getRanges(patient),
       });
-      flushSync(() => setPrintData(data));
+      flushSync(() => setPrintView({ Charts: ReportCharts, data }));
       await nextFrame();
       const charts = await captureCharts(chartsRef.current);
       const doc = buildReport(data, { charts });
@@ -68,7 +69,7 @@ export function ReportButton({ patient, medications, today }) {
     } catch (err) {
       toast.error(userMessage(err, 'Could not create the report. Please try again.'));
     } finally {
-      setPrintData(null);
+      setPrintView(null);
       setBusy(false);
     }
   }
@@ -92,7 +93,8 @@ export function ReportButton({ patient, medications, today }) {
         )}
         {busy ? 'Preparing report…' : `Download ${REPORT_DAYS}-day report`}
       </Button>
-      {printData && createPortal(<ReportCharts ref={chartsRef} data={printData} />, document.body)}
+      {printView &&
+        createPortal(<printView.Charts ref={chartsRef} data={printView.data} />, document.body)}
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { Suspense, lazy, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState.jsx';
 import { ErrorState } from '../../components/ErrorState.jsx';
@@ -12,8 +12,12 @@ import { isDateKey, todayKey } from '../../lib/time.js';
 import { ReportButton } from '../report/ReportButton.jsx';
 import { DayView } from './DayView.jsx';
 import { FamilyHeader } from './FamilyHeader.jsx';
-import { VitalsCharts } from './VitalsCharts.jsx';
 import { WeeklySummary } from './WeeklySummary.jsx';
+
+// The chart library is large; load it only when the Vitals tab opens.
+const VitalsCharts = lazy(() =>
+  import('./VitalsCharts.jsx').then((m) => ({ default: m.VitalsCharts })),
+);
 
 const TABS = [
   { id: 'day', label: 'Day' },
@@ -89,7 +93,11 @@ export function Dashboard() {
             onChangeDate={(next) => update({ date: next >= today ? null : next })}
           />
         )}
-        {tab === 'vitals' && <VitalsCharts {...shared} />}
+        {tab === 'vitals' && (
+          <Suspense fallback={<Spinner label="Loading charts" />}>
+            <VitalsCharts {...shared} />
+          </Suspense>
+        )}
         {tab === 'summary' && <WeeklySummary {...shared} />}
       </div>
     </div>

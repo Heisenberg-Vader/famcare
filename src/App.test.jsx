@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { App } from './App.jsx';
 
@@ -15,19 +15,25 @@ vi.mock('./data/patients.js', () => ({
 import { fakeAuth, renderWithProviders, signedInAs } from './test/renderWithProviders.jsx';
 
 describe('App routing', () => {
+  // The role homes are lazy-loaded; transform them up front so the routing assertions
+  // don't depend on how fast a busy test run compiles them.
+  beforeAll(async () => {
+    await Promise.all([import('./pages/NurseHome.jsx'), import('./pages/FamilyHome.jsx')]);
+  }, 30000);
+
   it('sends signed-out users from / to the login page', () => {
     renderWithProviders(<App />, { route: '/' });
     expect(screen.getByRole('heading', { name: 'CarePal Daily Care' })).toBeTruthy();
   });
 
-  it('sends a signed-in nurse from / to the nurse home', () => {
+  it('sends a signed-in nurse from / to the nurse home', async () => {
     renderWithProviders(<App />, { route: '/', auth: signedInAs('nurse') });
-    expect(screen.getByRole('heading', { name: 'My patients' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'My patients' })).toBeTruthy();
   });
 
-  it('sends a signed-in family member from / to the family home', () => {
+  it('sends a signed-in family member from / to the family home', async () => {
     renderWithProviders(<App />, { route: '/', auth: signedInAs('family') });
-    expect(screen.getByRole('heading', { name: 'Family dashboard' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Family dashboard' })).toBeTruthy();
   });
 
   it('shows a loader while auth is resolving', () => {

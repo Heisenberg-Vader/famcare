@@ -30,3 +30,13 @@ describe('service worker caching', () => {
     ).toBe(true);
   });
 });
+
+describe('precache contents', () => {
+  it('leaves the family-only report and chart chunks out of the install download', () => {
+    const ignores = pwaOptions.workbox.globIgnores.join(' ');
+    for (const chunk of ['buildReport', 'html2canvas', 'MetricPlot']) {
+      expect(ignores).toContain(chunk);
+    }
+    expect(ignores).not.toMatch(/NurseHome|firebase|react/);
+  });
+});

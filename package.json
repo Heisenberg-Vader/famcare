@@ -13,7 +13,8 @@
     "check": "npm run lint && npm run test && npm run build",
     "seed": "node scripts/seed.mjs",
     "prepare": "git config core.hooksPath .githooks",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-carepal \"vitest run --config vitest.rules.config.js\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-carepal \"vitest run --config vitest.rules.config.js\"",
+    "deploy": "npm run check && firebase deploy --only hosting,firestore:rules,firestore:indexes"
   },
   "dependencies": {
     "date-fns": "^4.4.0",

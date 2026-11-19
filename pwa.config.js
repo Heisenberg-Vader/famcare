@@ -9,6 +9,14 @@ export const FORBIDDEN_CACHE_HOSTS = Object.freeze([
   'cloudfunctions.net',
 ]);
 
+export const REPORT_AND_CHART_CHUNKS = Object.freeze([
+  '**/buildReport-*.js',
+  '**/html2canvas-*.js',
+  '**/purify.es-*.js',
+  '**/index.es-*.js',
+  '**/MetricPlot-*.js',
+]);
+
 export const pwaOptions = {
   registerType: 'autoUpdate',
   injectRegister: 'auto',
@@ -25,6 +33,9 @@ export const pwaOptions = {
   },
   workbox: {
     globPatterns: ['**/*.{js,css,html,svg,webmanifest}'],
+    // Family-only, online-only code (charts and the PDF report, about 1.2 MB) is fetched
+    // when first used instead of being downloaded onto every nurse phone at install.
+    globIgnores: [...REPORT_AND_CHART_CHUNKS], // a copy: workbox appends to it
     navigateFallback: '/index.html',
     // Firebase Hosting reserved URLs (auth handler, init.json) must reach the network.
     navigateFallbackDenylist: [/^\/__\//],

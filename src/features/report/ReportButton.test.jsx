@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithProviders, signedInAs } from '../../test/renderWithProviders.jsx';
 import { atIST } from '../../lib/time.js';
@@ -36,6 +36,12 @@ function renderButton() {
 }
 
 describe('ReportButton', () => {
+  // The button lazy-loads the chart module (recharts); transform it up front so the
+  // assertions don't depend on how fast a busy test run compiles it.
+  beforeAll(async () => {
+    await import('./ReportCharts.jsx');
+  }, 30000);
+
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.buildReport.mockReturnValue({ save: mocks.save });

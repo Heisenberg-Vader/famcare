@@ -10,6 +10,8 @@ Full setup, architecture and decisions are written up in the final phase. For no
 3. `npm run dev`
 4. `npm run check` runs lint, unit tests and the production build.
 5. `npm run test:rules` runs the Firestore rules tests in the emulator (needs Java 11+).
+6. `npm run deploy` runs the full check, then deploys Hosting, Firestore rules and indexes
+   (uses the Firebase CLI login on this machine).
 
 ## Data on devices
 
@@ -69,7 +71,9 @@ The PWA service worker (`pwa.config.js`, vite-plugin-pwa) precaches only the bui
 (JS, CSS, HTML, icons). `runtimeCaching` is empty: it never caches requests to
 `googleapis.com` or other Firebase hosts, because those responses carry patient data and
 tokens and a service-worker cache would outlive sign-out. A unit test
-(`src/lib/pwaConfig.test.js`) guards this.
+(`src/lib/pwaConfig.test.js`) guards this. The family-only chart and PDF chunks (about
+1.2 MB) are left out of the precache and download on first use, so installing on a nurse
+phone fetches about 1 MB.
 
 ### What is kept in `localStorage`
 
