@@ -9,6 +9,7 @@ import { watchPatient } from '../../data/patients.js';
 import { useNow } from '../../hooks/useNow.js';
 import { useSubscription } from '../../hooks/useSubscription.js';
 import { isDateKey, todayKey } from '../../lib/time.js';
+import { ReportButton } from '../report/ReportButton.jsx';
 import { DayView } from './DayView.jsx';
 import { FamilyHeader } from './FamilyHeader.jsx';
 import { VitalsCharts } from './VitalsCharts.jsx';
@@ -56,6 +57,7 @@ export function Dashboard() {
   return (
     <div className="space-y-4">
       <FamilyHeader patient={patient.data} />
+      <ReportButton patient={patient.data} medications={medications} today={today} />
       {meds.error && <ErrorState error={meds.error} />}
 
       <div

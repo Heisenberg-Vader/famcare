@@ -129,6 +129,13 @@ function niceCeil(x) {
   return Math.abs(x) < 20 ? Math.ceil(x * 2) / 2 : Math.ceil(x / 5) * 5;
 }
 
+/** Caption describing a chart's normal band(s). */
+export function bandText(chart, unit) {
+  if (chart.bands.length === 0)
+    return 'No reference band · flagged when weight changes by more than 2 kg in 7 days';
+  return `Normal ${chart.bands.map((b) => `${b.min}–${b.max}`).join(' / ')} ${unit}`;
+}
+
 /** Summary statistics per chart series: min, max, average and out-of-range count. */
 export function seriesStats(chart) {
   const bySeries = new Map();

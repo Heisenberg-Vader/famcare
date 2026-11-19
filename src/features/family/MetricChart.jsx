@@ -1,47 +1,10 @@
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceArea,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import { FLAG_TEXT, SERIES_COLORS } from './chartTheme.js';
+import { bandText } from '../../lib/chartData.js';
 import { formatIST } from '../../lib/time.js';
-import { ChartTooltip } from './ChartTooltip.jsx';
-import { AXIS_TEXT, CRITICAL, FLAG_TEXT, GRID, SERIES_COLORS, SURFACE } from './chartTheme.js';
-
-function makeDot(seriesKey, color) {
-  function FlagDot({ cx, cy, payload, index }) {
-    const key = `${seriesKey}-${index}`;
-    if (payload?.[seriesKey] == null || cx == null || cy == null) return <g key={key} />;
-    const flagged = Boolean(payload[`${seriesKey}Flag`]);
-    return (
-      <circle
-        key={key}
-        cx={cx}
-        cy={cy}
-        r={flagged ? 5 : 3}
-        fill={flagged ? CRITICAL : color}
-        stroke={SURFACE}
-        strokeWidth={flagged ? 2 : 1.5}
-      />
-    );
-  }
-  return FlagDot;
-}
-
-function bandText(chart, unit) {
-  if (chart.bands.length === 0)
-    return 'No reference band · flagged when weight changes by more than 2 kg in 7 days';
-  return `Normal ${chart.bands.map((b) => `${b.min}–${b.max}`).join(' / ')} ${unit}`;
-}
+import { MetricPlot } from './MetricPlot.jsx';
 
 /** One vitals chart: lines per series, shaded reference band(s), red out-of-range dots. */
 export function MetricChart({ metric, chart, startMs, endMs, ticks }) {
-  const colorOf = (key) =>
-    SERIES_COLORS[metric.series.findIndex((s) => s.key === key)] ?? SERIES_COLORS[0];
   const total = chart.readings.length;
   const multi = metric.series.length > 1;
 
@@ -86,57 +49,14 @@ export function MetricChart({ metric, chart, startMs, endMs, ticks }) {
           role="img"
           aria-label={`${metric.title} chart, ${total} readings, ${chart.outOfRange} ${metric.id === 'weightKg' ? 'flagged' : 'out of range'}. Table below.`}
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chart.points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-              <CartesianGrid vertical={false} stroke={GRID} />
-              {chart.bands.map((b) => (
-                <ReferenceArea
-                  key={b.seriesKey}
-                  y1={b.min}
-                  y2={b.max}
-                  fill={colorOf(b.seriesKey)}
-                  fillOpacity={0.1}
-                  stroke="none"
-                  ifOverflow="hidden"
-                />
-              ))}
-              <XAxis
-                dataKey="t"
-                type="number"
-                scale="time"
-                domain={[startMs, endMs]}
-                ticks={ticks}
-                tickFormatter={(t) => formatIST(t, 'd MMM')}
-                tick={{ fontSize: 11, fill: AXIS_TEXT }}
-                stroke={GRID}
-              />
-              <YAxis
-                domain={chart.domain}
-                width={38}
-                tick={{ fontSize: 11, fill: AXIS_TEXT }}
-                stroke={GRID}
-                allowDecimals={metric.id === 'tempF' || metric.id === 'weightKg'}
-              />
-              <Tooltip
-                content={<ChartTooltip metric={metric} />}
-                cursor={{ stroke: AXIS_TEXT, strokeDasharray: '3 3' }}
-              />
-              {metric.series.map((s) => (
-                <Line
-                  key={s.key}
-                  type="linear"
-                  dataKey={s.key}
-                  name={s.label}
-                  stroke={colorOf(s.key)}
-                  strokeWidth={2}
-                  connectNulls
-                  dot={makeDot(s.key, colorOf(s.key))}
-                  activeDot={{ r: 6, stroke: SURFACE, strokeWidth: 2 }}
-                  isAnimationActive={false}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+          <MetricPlot
+            metric={metric}
+            chart={chart}
+            startMs={startMs}
+            endMs={endMs}
+            ticks={ticks}
+            interactive
+          />
         </div>
       )}
 
