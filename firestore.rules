@@ -56,7 +56,11 @@ service cloud.firestore {
       }
 
       match /entries/{entryId} {
-        allow read: if canReadPatient(pid);
+        // Families read the full history. Nurses only read today and yesterday (IST), so a
+        // nurse device never holds more than two days of entries. 50 h covers the start of
+        // yesterday at any time of today plus clock skew. Queries must bound `at` to pass.
+        allow read: if isFamilyOf(pid)
+          || (isNurseOf(pid) && resource.data.at >= request.time - duration.value(50, 'h'));
 
         // createdAt/updatedAt must be serverTimestamp() so the 12 h edit window cannot be faked.
         // `at` may be backdated but not more than 10 minutes into the future.

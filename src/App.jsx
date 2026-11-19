@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth/authContext.js';
+import { IdleSignOut } from './auth/IdleSignOut.jsx';
 import { RequireRole } from './auth/RequireRole.jsx';
 import { homePathFor } from './auth/roles.js';
 import { FullScreenLoader } from './components/FullScreenLoader.jsx';
@@ -23,6 +24,7 @@ export function App() {
         path="/nurse/*"
         element={
           <RequireRole role="nurse">
+            <IdleSignOut />
             <NurseHome />
           </RequireRole>
         }

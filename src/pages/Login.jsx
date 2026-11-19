@@ -61,7 +61,7 @@ export function Login() {
             {authError?.message ??
               'This account is not set up as a nurse or family member. Contact your care coordinator.'}
           </p>
-          <Button variant="secondary" className="w-full" onClick={() => signOut().catch(() => {})}>
+          <Button variant="secondary" className="w-full" onClick={() => signOut()}>
             Sign out
           </Button>
         </Card>

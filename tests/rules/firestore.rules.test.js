@@ -18,6 +18,8 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import { nurseWindow } from '../../src/lib/scope.js';
+import { toDateKey } from '../../src/lib/time.js';
 
 const [host, port] = (process.env.FIRESTORE_EMULATOR_HOST ?? '127.0.0.1:8080').split(':');
 
@@ -218,6 +220,53 @@ describe('entries: update and delete', () => {
 
   it('family can read entries of their patient', async () => {
     await seedEntry('recent', 'kamla', 60 * 1000);
+    await assertSucceeds(getDocs(collection(priya(), 'patients/kamla/entries')));
+  });
+});
+
+describe('entries: nurse read window (today and yesterday)', () => {
+  const HOUR = 60 * 60 * 1000;
+
+  async function seedAt(id, agoMs) {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const at = Timestamp.fromMillis(Date.now() - agoMs);
+      await setDoc(doc(ctx.firestore(), `patients/kamla/entries/${id}`), {
+        type: 'water',
+        ml: 200,
+        at,
+        dateKey: toDateKey(at.toDate()),
+        nurseId: NURSE_DAY,
+        nurseName: 'Seeded',
+        createdAt: at,
+        updatedAt: at,
+      });
+    });
+  }
+
+  // Same shape as nurseEntriesQuery in src/data/entries.js.
+  const windowQuery = (db) => {
+    const { dateKeys, since } = nurseWindow();
+    return query(
+      collection(db, 'patients/kamla/entries'),
+      where('dateKey', 'in', dateKeys),
+      where('at', '>=', Timestamp.fromDate(since)),
+    );
+  };
+
+  it('nurse can query today and yesterday with the bounded query', async () => {
+    await seedAt('recent', HOUR);
+    await assertSucceeds(getDocs(windowQuery(dayNurse())));
+  });
+
+  it('nurse cannot read entries older than the window', async () => {
+    await seedAt('old', 3 * 24 * HOUR);
+    await assertFails(getDoc(doc(dayNurse(), 'patients/kamla/entries/old')));
+    await assertFails(getDocs(collection(dayNurse(), 'patients/kamla/entries')));
+  });
+
+  it('family still reads the full history', async () => {
+    await seedAt('old', 30 * 24 * HOUR);
+    await assertSucceeds(getDoc(doc(priya(), 'patients/kamla/entries/old')));
     await assertSucceeds(getDocs(collection(priya(), 'patients/kamla/entries')));
   });
 });
