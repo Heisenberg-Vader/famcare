@@ -1,8 +1,26 @@
-import { Timestamp, collection, getDocsFromCache, query, where } from 'firebase/firestore';
+import {
+  Timestamp,
+  collection,
+  deleteField,
+  doc,
+  getDocsFromCache,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import { validatePayload } from '../lib/entries.js';
 import { getDb } from '../lib/firebase.js';
 import { nurseWindow } from '../lib/scope.js';
+import { toDate, toDateKey } from '../lib/time.js';
+import { UserFacingError, toUserError } from './errors.js';
+import { fromDoc } from './snapshot.js';
 
 const entriesOf = (patientId) => collection(getDb(), 'patients', patientId, 'entries');
+
+const byAt = (a, b) => a.at - b.at;
 
 /**
  * Nurse-scoped query: today and yesterday only. The `at` bound is what the Firestore rules
@@ -17,6 +35,16 @@ export function nurseEntriesQuery(patientId, now = new Date()) {
   );
 }
 
+/** Live entries for today and yesterday, sorted by `at`. Includes unsynced local writes. */
+export function watchNurseEntries(patientId, onData, onError, now = new Date()) {
+  return onSnapshot(
+    nurseEntriesQuery(patientId, now),
+    { includeMetadataChanges: true },
+    (snap) => onData(snap.docs.map(fromDoc).sort(byAt), { fromCache: snap.metadata.fromCache }),
+    (err) => onError?.(toUserError(err, 'Could not load entries.')),
+  );
+}
+
 /** Entries saved on this device that have not reached the server (from the local cache). */
 export async function countPendingEntryWrites(patientIds, now = new Date()) {
   let count = 0;
@@ -25,4 +53,62 @@ export async function countPendingEntryWrites(patientIds, now = new Date()) {
     count += snap.docs.filter((d) => d.metadata.hasPendingWrites).length;
   }
   return count;
+}
+
+function checkPayload(type, payload) {
+  const result = validatePayload(type, payload);
+  if (!result.ok) {
+    throw new UserFacingError(Object.values(result.errors)[0] ?? 'Check the form.');
+  }
+  return result.value;
+}
+
+/**
+ * Creates an entry without waiting for the server (writes never resolve while offline).
+ * Validation errors throw synchronously; server rejections go to onError.
+ * Returns the new entry id.
+ */
+export function createEntry({ patientId, type, payload, at, nurse, onError }) {
+  const value = checkPayload(type, payload);
+  const when = toDate(at) ?? new Date();
+  const ref = doc(entriesOf(patientId));
+  setDoc(ref, {
+    type,
+    ...value,
+    at: Timestamp.fromDate(when),
+    dateKey: toDateKey(when),
+    nurseId: nurse.uid,
+    nurseName: nurse.name,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }).catch((err) => onError?.(toUserError(err, 'Could not save the entry.')));
+  return ref.id;
+}
+
+/**
+ * Edits an entry (own entries, within 12 h; enforced by the rules). Fields removed from the
+ * payload (e.g. a dose reason after switching to 'given') are deleted.
+ */
+export function updateEntry({ patientId, entry, payload, at, onError }) {
+  const value = checkPayload(entry.type, payload);
+  const when = toDate(at) ?? entry.at;
+  const changes = { ...value, at: Timestamp.fromDate(when), dateKey: toDateKey(when) };
+  for (const key of [
+    'reason',
+    'notes',
+    'sugarContext',
+    'systolic',
+    'diastolic',
+    'pulse',
+    'spo2',
+    'sugar',
+    'tempF',
+    'weightKg',
+  ]) {
+    if (key in entry && !(key in value)) changes[key] = deleteField();
+  }
+  updateDoc(doc(entriesOf(patientId), entry.id), {
+    ...changes,
+    updatedAt: serverTimestamp(),
+  }).catch((err) => onError?.(toUserError(err, 'Could not save the change.')));
 }

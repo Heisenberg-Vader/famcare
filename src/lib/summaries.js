@@ -148,3 +148,18 @@ export function compareSummary({ entries, medications, endKey, days = 7, now = n
     moodDirection: trendDirection(current.mood.average, previous.mood.average),
   };
 }
+
+/** Today's progress for the nurse patient list. */
+export function dayProgress({ entries, medications, dateKey, now = new Date() }) {
+  const dayEntries = (entries ?? []).filter((e) => e.dateKey === dateKey);
+  const doses = resolveDoses(expectedDoses(medications, dateKey), dayEntries, now);
+  const count = (status) => doses.filter((d) => d.status === status).length;
+  return {
+    vitalsCount: dayEntries.filter((e) => e.type === 'vitals').length,
+    dosesScheduled: doses.length,
+    dosesGiven: count('given'),
+    dosesNotGiven: count('missed') + count('refused') + count('held'),
+    dosesNotRecorded: count('not_recorded'),
+    dosesDue: doses.filter((d) => d.status !== 'pending').length,
+  };
+}
