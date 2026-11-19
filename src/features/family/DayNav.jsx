@@ -1,3 +1,4 @@
+import { Icon } from '../../components/Icon.jsx';
 import { Button } from '../../components/Button.jsx';
 import { addDaysToKey, formatDateKey } from '../../lib/time.js';
 
@@ -17,7 +18,7 @@ export function DayNav({ dateKey, today, onChange, calendarOpen, onToggleCalenda
         onClick={() => onChange(addDaysToKey(dateKey, -1))}
         className="px-3"
       >
-        ←
+        <Icon name="chevron-left" />
       </Button>
       <button
         type="button"
@@ -37,7 +38,7 @@ export function DayNav({ dateKey, today, onChange, calendarOpen, onToggleCalenda
         onClick={() => onChange(addDaysToKey(dateKey, 1))}
         className="px-3"
       >
-        →
+        <Icon name="chevron-right" />
       </Button>
       <Button
         variant={isToday ? 'secondary' : 'primary'}

@@ -1,3 +1,4 @@
+import { Icon } from '../../components/Icon.jsx';
 import { FLAG_TEXT, SERIES_COLORS } from './chartTheme.js';
 import { bandText } from '../../lib/chartData.js';
 import { formatIST } from '../../lib/time.js';
@@ -20,7 +21,14 @@ export function MetricChart({ metric, chart, startMs, endMs, ticks }) {
           <p
             className={`mt-0.5 text-xs ${chart.outOfRange ? 'font-medium text-red-700' : 'text-slate-600'}`}
           >
-            {chart.outOfRange ? '⚠ ' : ''}
+            {chart.outOfRange ? (
+              <Icon
+                name="warning"
+                size={13}
+                strokeWidth={2.25}
+                className="mr-1 -mt-0.5 align-middle"
+              />
+            ) : null}
             {chart.outOfRange} of {total} readings{' '}
             {metric.id === 'weightKg' ? 'flagged' : 'out of range'}
           </p>
@@ -82,7 +90,20 @@ export function MetricChart({ metric, chart, startMs, endMs, ticks }) {
                     <td
                       className={`py-1 pl-2 ${r.flag ? 'font-medium text-red-700' : 'text-slate-500'}`}
                     >
-                      {r.flag ? `⚠ ${FLAG_TEXT[r.flag]}${r.note ? ` (${r.note})` : ''}` : 'Normal'}
+                      {r.flag ? (
+                        <>
+                          <Icon
+                            name="warning"
+                            size={12}
+                            strokeWidth={2.25}
+                            className="mr-1 -mt-0.5 align-middle"
+                          />
+                          {FLAG_TEXT[r.flag]}
+                          {r.note ? ` (${r.note})` : ''}
+                        </>
+                      ) : (
+                        'Normal'
+                      )}
                     </td>
                   </tr>
                 ))}

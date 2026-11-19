@@ -6,10 +6,11 @@ import { useAsync } from '../../hooks/useAsync.js';
 import { moodWord } from '../../lib/entryText.js';
 import { compareSummary } from '../../lib/summaries.js';
 import { addDaysToKey, formatDateKey } from '../../lib/time.js';
+import { Icon } from '../../components/Icon.jsx';
 import { MiniBars } from './MiniBars.jsx';
 import { Sparkline } from './Sparkline.jsx';
 
-const ARROWS = { up: '↑', down: '↓', flat: '→' };
+const ARROWS = { up: 'arrow-up', down: 'arrow-down', flat: 'arrow-right' };
 
 function Delta({ current, previous, unit = '', suffix = 'vs previous 7 days' }) {
   if (current == null || previous == null) {
@@ -19,7 +20,7 @@ function Delta({ current, previous, unit = '', suffix = 'vs previous 7 days' }) 
   const dir = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
   return (
     <p className="text-xs text-slate-600">
-      <span aria-hidden="true">{ARROWS[dir]} </span>
+      <Icon name={ARROWS[dir]} size={12} strokeWidth={2.25} className="mr-1 -mt-0.5 align-middle" />
       {diff === 0 ? 'No change' : `${diff > 0 ? '+' : ''}${diff}${unit}`} {suffix}
       <span className="text-slate-400">
         {' '}
@@ -117,9 +118,13 @@ export function WeeklySummary({ patient, medications, today, now }) {
                   /5 · {moodWord(Math.round(c.mood.average))}
                 </span>
                 {moodDir && (
-                  <span className="ml-2 text-lg" aria-label={`trend ${moodDir}`}>
-                    {ARROWS[moodDir]}
-                  </span>
+                  <Icon
+                    name={ARROWS[moodDir]}
+                    size={20}
+                    strokeWidth={2.25}
+                    label={`trend ${moodDir}`}
+                    className="ml-2 -mt-1 align-middle text-slate-700"
+                  />
                 )}
               </>
             )

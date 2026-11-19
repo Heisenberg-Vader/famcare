@@ -1,4 +1,5 @@
 import { formatIST } from '../../lib/time.js';
+import { Icon } from '../../components/Icon.jsx';
 import { FLAG_TEXT } from './chartTheme.js';
 
 /** Recharts tooltip content: time in IST and each series value with its status. */
@@ -16,8 +17,9 @@ export function ChartTooltip({ active, payload, metric }) {
               {point[s.key]} {metric.unit}
             </span>
             {point[`${s.key}Flag`] && (
-              <span className="ml-1 font-semibold text-red-700">
-                ⚠ {FLAG_TEXT[point[`${s.key}Flag`]]}
+              <span className="ml-1 inline-flex items-center gap-0.5 font-semibold text-red-700">
+                <Icon name="warning" size={12} strokeWidth={2.25} />
+                {FLAG_TEXT[point[`${s.key}Flag`]]}
               </span>
             )}
           </p>

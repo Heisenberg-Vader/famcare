@@ -1,10 +1,12 @@
+import { Icon } from '../../components/Icon.jsx';
+
 const BUTTONS = [
-  { type: 'vitals', icon: '🩺', text: 'Vitals' },
-  { type: 'meal', icon: '🍽️', text: 'Meal' },
-  { type: 'water-quick', icon: '💧', text: 'Water +250 ml' },
-  { type: 'activity', icon: '🚶', text: 'Activity' },
-  { type: 'mood', icon: '🙂', text: 'Mood' },
-  { type: 'observation', icon: '📝', text: 'Note' },
+  { type: 'vitals', icon: 'vitals', text: 'Vitals' },
+  { type: 'meal', icon: 'meal', text: 'Meal' },
+  { type: 'water-quick', icon: 'water', text: 'Water +250 ml' },
+  { type: 'activity', icon: 'activity', text: 'Activity' },
+  { type: 'mood', icon: 'mood', text: 'Mood' },
+  { type: 'observation', icon: 'observation', text: 'Note' },
 ];
 
 /** onAdd(type) opens a form; onQuickWater() logs 250 ml now with one tap. */
@@ -19,9 +21,7 @@ export function QuickAdd({ onAdd, onQuickWater }) {
             onClick={() => (b.type === 'water-quick' ? onQuickWater() : onAdd(b.type))}
             className="flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-800 shadow-sm hover:bg-brand-50 active:bg-brand-100"
           >
-            <span aria-hidden="true" className="text-xl">
-              {b.icon}
-            </span>
+            <Icon name={b.icon} size={24} className="text-brand-700" />
             {b.text}
           </button>
         ))}

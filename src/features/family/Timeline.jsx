@@ -1,3 +1,4 @@
+import { Icon } from '../../components/Icon.jsx';
 import { EntryIcon } from '../../components/EntryIcon.jsx';
 import { formatTime } from '../../lib/time.js';
 
@@ -16,8 +17,22 @@ function Detail({ item }) {
           <span key={p.key} className={p.flag ? 'font-semibold text-red-700' : 'text-slate-600'}>
             {p.text}
             {p.flag && <span className="sr-only"> ({p.flag})</span>}
-            {p.flag === 'high' && ' ↑'}
-            {p.flag === 'low' && ' ↓'}
+            {p.flag === 'high' && (
+              <Icon
+                name="arrow-up"
+                size={14}
+                strokeWidth={2.5}
+                className="ml-0.5 -mt-0.5 align-middle"
+              />
+            )}
+            {p.flag === 'low' && (
+              <Icon
+                name="arrow-down"
+                size={14}
+                strokeWidth={2.5}
+                className="ml-0.5 -mt-0.5 align-middle"
+              />
+            )}
           </span>
         ))}
       </p>

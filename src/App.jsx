@@ -5,6 +5,7 @@ import { IdleSignOut } from './auth/IdleSignOut.jsx';
 import { RequireRole } from './auth/RequireRole.jsx';
 import { homePathFor } from './auth/roles.js';
 import { FullScreenLoader } from './components/FullScreenLoader.jsx';
+import { LoadErrorBoundary } from './components/LoadErrorBoundary.jsx';
 import { Login } from './pages/Login.jsx';
 import { NotFound } from './pages/NotFound.jsx';
 
@@ -32,9 +33,11 @@ export function App() {
         element={
           <RequireRole role="nurse">
             <IdleSignOut />
-            <Suspense fallback={<FullScreenLoader label="Loading" />}>
-              <NurseHome />
-            </Suspense>
+            <LoadErrorBoundary fullScreen>
+              <Suspense fallback={<FullScreenLoader label="Loading" />}>
+                <NurseHome />
+              </Suspense>
+            </LoadErrorBoundary>
           </RequireRole>
         }
       />
@@ -42,9 +45,11 @@ export function App() {
         path="/family/*"
         element={
           <RequireRole role="family">
-            <Suspense fallback={<FullScreenLoader label="Loading" />}>
-              <FamilyHome />
-            </Suspense>
+            <LoadErrorBoundary fullScreen>
+              <Suspense fallback={<FullScreenLoader label="Loading" />}>
+                <FamilyHome />
+              </Suspense>
+            </LoadErrorBoundary>
           </RequireRole>
         }
       />

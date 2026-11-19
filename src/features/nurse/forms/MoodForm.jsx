@@ -5,9 +5,8 @@ import { TimeInput } from '../../../components/form/TimeInput.jsx';
 import { useTimeField } from '../../../hooks/useTimeField.js';
 import { MOOD_TAGS } from '../../../lib/entries.js';
 import { moodWord } from '../../../lib/entryText.js';
+import { Icon } from '../../../components/Icon.jsx';
 import { useEntrySubmit } from './useEntrySubmit.js';
-
-const FACES = { 1: '😢', 2: '🙁', 3: '😐', 4: '🙂', 5: '😄' };
 
 export function MoodForm({ entry, dateKey, onSave, onCancel }) {
   const [score, setScore] = useState(entry?.score ?? null);
@@ -19,7 +18,15 @@ export function MoodForm({ entry, dateKey, onSave, onCancel }) {
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <ChoiceChips
         label="Overall mood"
-        options={[1, 2, 3, 4, 5].map((v) => ({ value: v, label: `${FACES[v]} ${moodWord(v)}` }))}
+        options={[1, 2, 3, 4, 5].map((v) => ({
+          value: v,
+          label: (
+            <>
+              <Icon name={`mood${v}`} size={18} />
+              {moodWord(v)}
+            </>
+          ),
+        }))}
         value={score}
         onChange={setScore}
         error={errors.score}

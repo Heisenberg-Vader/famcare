@@ -98,6 +98,19 @@ export async function getVitalsSince(patientId, since) {
   }
 }
 
+/**
+ * Entries created or edited after `since` (a Date), any day. Lets the report cache check
+ * for changes with a handful of reads instead of reloading the whole period.
+ */
+export async function getEntriesChangedSince(patientId, since) {
+  try {
+    const q = query(entriesOf(patientId), where('updatedAt', '>', Timestamp.fromDate(since)));
+    return (await getDocs(q)).docs.map(fromDoc);
+  } catch (err) {
+    throw toUserError(err, 'Could not check for new entries.');
+  }
+}
+
 /** Entries saved on this device that have not reached the server (from the local cache). */
 export async function countPendingEntryWrites(patientIds, now = new Date()) {
   let count = 0;

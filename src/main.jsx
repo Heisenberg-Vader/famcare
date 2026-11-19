@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import { App } from './App.jsx';
 import { AuthProvider } from './auth/AuthProvider.jsx';
+import { LoadErrorBoundary } from './components/LoadErrorBoundary.jsx';
 import { ToastProvider } from './components/ToastProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
@@ -11,7 +12,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <App />
+          <LoadErrorBoundary fullScreen>
+            <App />
+          </LoadErrorBoundary>
         </AuthProvider>
       </ToastProvider>
     </BrowserRouter>

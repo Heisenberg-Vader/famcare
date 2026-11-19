@@ -1,3 +1,4 @@
+import { Icon } from '../../components/Icon.jsx';
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../auth/authContext.js';
@@ -93,8 +94,12 @@ export function TodayLog() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/nurse" className="text-sm font-medium text-brand-700">
-          ← My patients
+        <Link
+          to="/nurse"
+          className="inline-flex items-center gap-0.5 text-sm font-medium text-brand-700"
+        >
+          <Icon name="chevron-left" size={16} strokeWidth={2.25} />
+          My patients
         </Link>
         <div className="mt-2">
           <PatientSummary patient={patient.data} />

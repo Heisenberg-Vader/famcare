@@ -1,3 +1,4 @@
+import { Icon } from './Icon.jsx';
 import { useEffect, useId } from 'react';
 
 /** Bottom sheet on phones, centred dialog on wider screens. Escape or backdrop closes it. */
@@ -35,10 +36,10 @@ export function Sheet({ title, onClose, children }) {
           <button
             type="button"
             onClick={onClose}
-            className="-mr-2 rounded-lg px-2 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
             aria-label="Close"
           >
-            ×
+            <Icon name="close" />
           </button>
         </div>
         {children}

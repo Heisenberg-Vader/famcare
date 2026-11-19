@@ -2,6 +2,7 @@ import { Suspense, lazy, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { EmptyState } from '../../components/EmptyState.jsx';
 import { ErrorState } from '../../components/ErrorState.jsx';
+import { LoadErrorBoundary } from '../../components/LoadErrorBoundary.jsx';
 import { Spinner } from '../../components/Spinner.jsx';
 import { watchDayEntries } from '../../data/entries.js';
 import { watchMedications } from '../../data/medications.js';
@@ -94,9 +95,11 @@ export function Dashboard() {
           />
         )}
         {tab === 'vitals' && (
-          <Suspense fallback={<Spinner label="Loading charts" />}>
-            <VitalsCharts {...shared} />
-          </Suspense>
+          <LoadErrorBoundary>
+            <Suspense fallback={<Spinner label="Loading charts" />}>
+              <VitalsCharts {...shared} />
+            </Suspense>
+          </LoadErrorBoundary>
         )}
         {tab === 'summary' && <WeeklySummary {...shared} />}
       </div>

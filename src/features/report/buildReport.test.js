@@ -80,7 +80,9 @@ describe('buildReport', () => {
     const pages = doc.getNumberOfPages();
     expect(pages).toBeGreaterThan(1);
     // Drawn text only (the document's Subject metadata repeats it once).
-    const disclaimers = text.match(/\(Compiled from caregiver logs\. Not a diagnostic document\.\) Tj/g);
+    const disclaimers = text.match(
+      /\(Compiled from caregiver logs\. Not a diagnostic document\.\) Tj/g,
+    );
     expect(disclaimers).toHaveLength(pages);
     expect(text).toContain(`page ${pages} of ${pages}`);
   });

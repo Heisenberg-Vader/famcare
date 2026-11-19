@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Icon } from '../../../components/Icon.jsx';
 import { ChoiceChips } from '../../../components/form/ChoiceChips.jsx';
 import { FormActions } from '../../../components/form/FormActions.jsx';
 import { TextAreaField } from '../../../components/form/TextAreaField.jsx';
@@ -30,7 +31,15 @@ export function ObservationForm({ entry, dateKey, onSave, onCancel }) {
         label="Type"
         options={[
           { value: 'info', label: 'Info' },
-          { value: 'concern', label: '⚠️ Concern' },
+          {
+            value: 'concern',
+            label: (
+              <>
+                <Icon name="warning" size={18} />
+                Concern
+              </>
+            ),
+          },
         ]}
         value={severity}
         onChange={setSeverity}

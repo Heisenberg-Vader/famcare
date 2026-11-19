@@ -1,3 +1,4 @@
+import { Icon } from './Icon.jsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToastContext } from './toastContext.js';
 
@@ -65,10 +66,10 @@ export function ToastProvider({ children }) {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="-my-1 rounded px-1 text-white/80 hover:text-white"
+              className="-my-1 rounded p-1 text-white/80 hover:text-white"
               aria-label="Dismiss"
             >
-              ×
+              <Icon name="close" size={16} />
             </button>
           </div>
         ))}
