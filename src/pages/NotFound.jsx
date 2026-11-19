@@ -4,8 +4,9 @@ import { PageShell } from '../components/PageShell.jsx';
 export function NotFound() {
   return (
     <PageShell title="Page not found">
-      <Link to="/" className="text-brand-600 underline">
-        Go to start
+      <p className="mb-4 text-slate-600">That page does not exist.</p>
+      <Link to="/" className="font-medium text-brand-600 underline">
+        Go to my home page
       </Link>
     </PageShell>
   );
