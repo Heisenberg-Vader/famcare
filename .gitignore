@@ -156,3 +156,30 @@ vite.config.ts.timestamp-*
 .nx/workspace-data
 .nx/migrate-runs
 .claude/settings.local.json
+
+# --- Vite scaffold ---
+dist-ssr
+*.local
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Secrets (never commit) ---
+*service-account*.json
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
+*-sa.json
+functions/.secret*
+functions/.env*
+functions/node_modules/
+
+# --- Firebase emulator ---
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
