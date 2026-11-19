@@ -83,6 +83,21 @@ export async function getEntriesBetween(patientId, startKey, endKey) {
   }
 }
 
+/** Vitals entries since `since` (a Date), sorted by `at`. Uses the (type, at) index. */
+export async function getVitalsSince(patientId, since) {
+  try {
+    const q = query(
+      entriesOf(patientId),
+      where('type', '==', 'vitals'),
+      where('at', '>=', Timestamp.fromDate(since)),
+      orderBy('at'),
+    );
+    return (await getDocs(q)).docs.map(fromDoc);
+  } catch (err) {
+    throw toUserError(err, 'Could not load vitals.');
+  }
+}
+
 /** Entries saved on this device that have not reached the server (from the local cache). */
 export async function countPendingEntryWrites(patientIds, now = new Date()) {
   let count = 0;
