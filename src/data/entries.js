@@ -3,8 +3,10 @@ import {
   collection,
   deleteField,
   doc,
+  getDocs,
   getDocsFromCache,
   onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -43,6 +45,42 @@ export function watchNurseEntries(patientId, onData, onError, now = new Date()) 
     (snap) => onData(snap.docs.map(fromDoc).sort(byAt), { fromCache: snap.metadata.fromCache }),
     (err) => onError?.(toUserError(err, 'Could not load entries.')),
   );
+}
+
+/** Live entries of one IST day, sorted by `at` (family "today" view). */
+export function watchDayEntries(patientId, dateKey, onData, onError) {
+  const q = query(entriesOf(patientId), where('dateKey', '==', dateKey), orderBy('at'));
+  return onSnapshot(
+    q,
+    (snap) => onData(snap.docs.map(fromDoc)),
+    (err) => onError?.(toUserError(err, 'Could not load this day.')),
+  );
+}
+
+/** One-off read of a past day. */
+export async function getDayEntries(patientId, dateKey) {
+  try {
+    const q = query(entriesOf(patientId), where('dateKey', '==', dateKey), orderBy('at'));
+    return (await getDocs(q)).docs.map(fromDoc);
+  } catch (err) {
+    throw toUserError(err, 'Could not load this day.');
+  }
+}
+
+/** One-off read of an inclusive range of IST days, sorted by `at`. */
+export async function getEntriesBetween(patientId, startKey, endKey) {
+  try {
+    const q = query(
+      entriesOf(patientId),
+      where('dateKey', '>=', startKey),
+      where('dateKey', '<=', endKey),
+      orderBy('dateKey'),
+      orderBy('at'),
+    );
+    return (await getDocs(q)).docs.map(fromDoc);
+  } catch (err) {
+    throw toUserError(err, 'Could not load entries for these dates.');
+  }
 }
 
 /** Entries saved on this device that have not reached the server (from the local cache). */

@@ -1,6 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { App } from './App.jsx';
+
+vi.mock('./data/patients.js', () => ({
+  watchMyPatients: (uid, role, ok) => {
+    ok([
+      { id: 'a', fullName: 'Patient A' },
+      { id: 'b', fullName: 'Patient B' },
+    ]);
+    return () => {};
+  },
+}));
+
 import { fakeAuth, renderWithProviders, signedInAs } from './test/renderWithProviders.jsx';
 
 describe('App routing', () => {
