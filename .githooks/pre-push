@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Runs the full check, plus Firestore rules tests when they exist, before anything reaches GitHub.
+set -uo pipefail
+[ -f package.json ] && [ -d node_modules ] || exit 0
+
+if jq -e '.scripts.check' package.json >/dev/null 2>&1; then
+  npm run --silent check || { echo "pre-push: npm run check failed." >&2; exit 1; }
+else
+  npm run --silent --if-present lint && npm run --silent --if-present test && npm run --silent --if-present build \
+    || { echo "pre-push: lint, tests or build failed." >&2; exit 1; }
+fi
+
+if jq -e '.scripts["test:rules"]' package.json >/dev/null 2>&1; then
+  npm run --silent test:rules || { echo "pre-push: Firestore rules tests failed." >&2; exit 1; }
+fi
+exit 0
